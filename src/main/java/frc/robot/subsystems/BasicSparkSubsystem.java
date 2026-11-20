@@ -10,7 +10,10 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 
 public class BasicSparkSubsystem {
     private final int sparkID = 0;
@@ -34,11 +37,11 @@ public class BasicSparkSubsystem {
     private SparkMax motor;
     private SparkMaxConfig config;
     private SparkClosedLoopController controller;
-    private ClosedLoopSlot ClosedLoopSlot = ClosedLoopSlot.kSlot0;
+    private ClosedLoopSlot closedLoopSlot = ClosedLoopSlot.kSlot0;
 
     private boolean isBrakeMode = true;
 
-    public class BasicSparkSubsystem {
+    public BasicSparkSubsystem() {
         motor = new SparkMax(sparkID, MotorType.kBrushless);
 
         controller = motor.getClosedLoopController();
@@ -47,10 +50,10 @@ public class BasicSparkSubsystem {
             .inverted(inverted)
             .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(currentList)
-            .voltageCompensation(nominalVoltage: 12);
+            .voltageCompensation(12);
 
         config.encoder
-            .positionConversionFactor(factor: 360)
+            .positionConversionFactor(360)
             .velocityConversionFactor(360/60);
         
         config.closedLoop
@@ -71,7 +74,7 @@ public class BasicSparkSubsystem {
         config.closedLoop.feedForward
             .kS(slot0Ks, ClosedLoopSlot.kSlot0)
             .kS(slot1Ks, ClosedLoopSlot.kSlot1)
-            .kS(slot1Kv, ClosedLoopSlot.kSlot1)
+            .kS(slot1Kv, ClosedLoopSlot.kSlot1);
         
         config.signals
             .appliedOutputPeriodMs(20)
@@ -90,8 +93,9 @@ public class BasicSparkSubsystem {
         motor.clearFaults();
 
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
 
-        public void runPercentOutput(double runPercentOutput) {
+        public void runPercentOutput(double percentOutput) {
             motor.set(percentOutput);
         }
 
@@ -100,13 +104,13 @@ public class BasicSparkSubsystem {
         }
 
         public void runPosition(double position) {
-            controller.setPIDSlot(ClosedLoopSlot.kSlot0);
-            controller.setSetpoint(position, ControlType.kPosition, ClosedLoopSlot);
+            setPIDSlot(ClosedLoopSlot.kSlot0);
+            controller.setSetpoint(position, ControlType.kPosition, closedLoopSlot);
         }
             
         public void runVelocity(double velocity) {
             setPIDSlot(ClosedLoopSlot.kSlot1);
-            controller.setSetpoint(velocity, ControlType.kVelocity, ClosedLoopSlot);
+            controller.setSetpoint(velocity, ControlType.kVelocity, closedLoopSlot);
         }
 
         public void stop() {
@@ -114,7 +118,7 @@ public class BasicSparkSubsystem {
         }
 
         public void setPIDSlot(ClosedLoopSlot slot) {
-            ClosedLoopSlot = slot;
+            closedLoopSlot = slot;
         }
 
         public void setBrakeMode(boolean brake) {
@@ -134,4 +138,3 @@ public class BasicSparkSubsystem {
         }
     }
 
-}
